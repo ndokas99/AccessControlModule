@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+    <title>ERP Generate MFA</title>
+</head>
+<body>
+    <section>
+        <div class="imgBx">
+            <img src="/static/images/bg.jpg" alt="">
+        </div>
+        <div class="contentBx">
+            <div class="formBx">
+                <h2>Confirm with MFA Authentication</h2>
+                <form id="mfaForm" action="/confirmLogin" method="POST">
+                    <div class="inputBx">
+                        <span>MFA Code</span>
+                        <input type="text" name="mfacode" required>
+                    </div>
+                    <div class="inputBx" style="text-align: center">
+                        <input type="submit" name="confirm" value="Confirm">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        #warning{
+            display: none;
+            color: red;
+            text-align: center;
+        }
+        .content-table{
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9rem;
+            width: 50%;
+            border-radius: 5px 5px 0 0;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages  %}
+            {% if category == 'error' %}
+                <div class="alert alert-danger alert-dismissable fade show fixed-top" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-success alert-dismissable fade show fixed-top" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="accommodation-header">
+        <h1>Manage Accounts</h1>
+    </div>
+    <div class="search">
+        <div class="form_blacklist">
+            <input id="id" type="text" placeholder="Search By User ID">
+            <input onclick="query();" type="submit" value="Search">
+        </div>
+    </div>
+    <h6 id="warning"></h6>
+    <div class="content_blacklist">
+        <table class="content-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="userid"></td>
+                    <td id="email"></td>
+                    <td id="status"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="buttons-status">
+        <a href="#" class="btn" onclick="toggle_state();">Toggle status</a>
+        <a href="#" class="btn" onclick="delete_acc();">Delete</a>
+        <a href="/" class="btn">Logout</a>
+    </div>
+    <script>
+        function query(){
+            let userid = $('#id').val();
+            fetch('/query', {
+                    method: "POST",
+                    credentials: "include",
+                    body: JSON.stringify({userid:userid}),
+                    cache: "no-cache",
+                    headers: new Headers({
+                        'content-type': "application/json"
+                    })
+            }).then(response=> response.json())
+            .then(data => display(data));
+        }
+        function display(data){
+            if(data["result"]===1){
+                $("#warning").hide();
+                $("#userid").text(data["userid"]);
+                $("#email").text(data["email"]);
+                if(data['status']==="OPEN")
+                    $("#status").text(data["status"]).css('color','green');
+                else
+                    $("#status").text(data["status"]).css('color','red');
+
+            }
+            else{
+                $("#warning").text("Error: Account not found").show();
+            }
+        }
+
+        function toggle_state(){
+            let userid = $('#userid').text();
+            fetch('/toggle', {
+                    method: "POST",
+                    credentials: "include",
+                    body: JSON.stringify({userid:userid}),
+                    cache: "no-cache",
+                    headers: new Headers({
+                        'content-type': "application/json"
+                    })
+            }).then(response=> response.json())
+            .then(data => process_state_change(data));
+        }
+        function process_state_change(data){
+            if(data["result"]===0){
+                $("#status").text(data["status"]).css('color','red');
+            }
+            else if(data["result"]===0){
+                $("#status").text(data["status"]).css('color','green');
+            }
+            else{
+                $("#warning").text("Error: Account not found").show();
+            }
+        }
+
+        function delete_acc(){
+            let userid = $('#userid').text();
+            fetch('/delete', {
+                method: "POST",
+                credentials: "include",
+                body: JSON.stringify({userid:userid}),
+                cache: "no-cache",
+                headers: new Headers({
+                    'content-type': "application/json"
+                })
+            }).then(response=> response.json())
+            .then(data => processDelete(data));
+        }
+        function processDelete(data){
+            if(data["result"]===1) {
+                $("#warning").text("Account deleted").show();
+                $("#userid").text("");
+                $("#email").text("");
+                $("#status").text("");
+            }
+            else{
+                $("#warning").text("Error: Record not found!").show();
+            }
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

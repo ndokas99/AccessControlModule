@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+    <title>ERP Signup</title>
+</head>
+<body>
+    <section>
+        <div class="imgBx">
+            <img src="/static/images/bg.jpg" alt="">
+        </div>
+        <div class="contentBx">
+            <div class="formBx">
+                <h2>Sign Up</h2>
+                <form id="signupForm" action="/captureMFA" method="POST">
+                    <div class="inputBx">
+                        <span>User ID</span>
+                        <input type="text" name="userid" placeholder="Enter User ID" required>
+                    </div>
+                    <h6 id="id_error"></h6>
+                    <div class="inputBx">
+                        <span>Email</span>
+                        <input type="text" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <h6 id="email_error"></h6>
+                    <div class="inputBx">
+                        <span>Password</span>
+                        <input type="password" name="password" placeholder="Enter password" required>
+                    </div>
+                    <h6 id="password_error"></h6>
+                    <div class="inputBx">
+                        <span>Confirm Password</span>
+                        <input type="password" name="confPassword" placeholder="Confirm password" required>
+                    </div>
+                    <h6 id="cpassword_error"></h6>
+                    <hr>
+                    <div class="inputBx">
+                        <input type="button" name="signup" value="Signup" onclick="verify();">
+                        <a href="/">
+                            <input type="button" name="home" value="Home">
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        function verify(){
+            let userid = $('[name="userid"]').val();
+            let email = $('[name="email"]').val();
+            let password = $('[name="password"]').val();
+            let cpassword = $('[name="confPassword"]').val();
+            fetch('/signupVerify', {
+                    method: "POST",
+                    credentials: "include",
+                    body: JSON.stringify(
+                        { userid: userid,
+                        password: password,
+                        cpassword: cpassword,
+                        email: email }
+                    ),
+                    cache: "no-cache",
+                    headers: new Headers({
+                        'content-type': "application/json"
+                    })
+            }).then(response=> response.json())
+            .then(data => confirm(data));
+        }
+
+        function confirm(data){
+            if(data['result']===0){
+                if(data['id_error'])
+                    $("#id_error").text(data["id_error"]).show();
+                else
+                    $("#id_error").hide();
+                if(data['password_error'])
+                    $("#password_error").text(data["password_error"]).show();
+                else
+                    $("#password_error").hide();
+                if(data['cpassword_error'])
+                    $("#cpassword_error").text(data["cpassword_error"]).show();
+                else
+                    $("#cpassword_error").hide();
+                if(data['email_error'])
+                    $("#email_error").text(data["email_error"]).show();
+                else
+                    $("#email_error").hide();
+            }
+            else{
+                $("#signupForm").submit();
+            }
+        }
+    </script>
+</body>
+</html>

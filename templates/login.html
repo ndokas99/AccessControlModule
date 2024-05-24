@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+    <title>ERP Login</title>
+</head>
+<body>
+    <section>
+        <div class="imgBx">
+            <img src="/static/images/bg.jpg" alt="">
+        </div>
+        <div class="contentBx">
+            <div class="formBx">
+                <h2>Login</h2>
+                <form id="loginForm" action="/verifyMFA" method="POST">
+                    <div class="inputBx">
+                        <span>User ID</span>
+                        <input type="text" name="userid" placeholder="Enter User ID" required>
+                    </div>
+                    <div class="inputBx">
+                        <span>Password</span>
+                        <input type="password" name="password" placeholder="Enter password" required>
+                    </div>
+                    <h6 id="warning"></h6>
+                    <hr>
+                    <div class="inputBx">
+                        <input type="button" name="signin" value="Login" onclick="verify();">
+                        <a href="/">
+                            <input type="button" name="home" value="Home">
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        function verify(){
+            let id = $('[name="userid"]').val();
+            let pw = $('[name="password"]').val();
+            fetch('/loginVerify', {
+                    method: "POST",
+                    credentials: "include",
+                    body: JSON.stringify({userid:id,password:pw}),
+                    cache: "no-cache",
+                    headers: new Headers({
+                        'content-type': "application/json"
+                    })
+            }).then(response=> response.json())
+            .then(data => confirm(data));
+        }
+
+        function confirm(data){
+            if(data['result']===0)
+                $("#warning").text(data["message"]).show();
+            else{
+                $("#loginForm").submit();
+            }
+        }
+    </script>
+</body>
+</html>
